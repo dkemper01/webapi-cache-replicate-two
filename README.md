@@ -10,5 +10,5 @@
 <li>Kendo Web UI 2013 Quarter 3 Release</li>
 </ul>
 
-<p>A demo of this site in its latest state can be found here: <a href="webapicachereplicateone.apphb.com">http://webapicachereplicateone.apphb.com</a> or here: <a href="webapicachereplicatetwo.apphb.com">http://webapicachereplicatetwo.apphb.com</a></p>
+<p>A demo of this site in its latest state can be found here: <a href="http://webapidistributedcachedemo.apphb.com">http://webapidistributedcachedemo.apphb.com</a></p>
 
