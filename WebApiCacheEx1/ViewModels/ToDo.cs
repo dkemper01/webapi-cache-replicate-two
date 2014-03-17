@@ -86,7 +86,7 @@ namespace WebApiCacheEx1.ViewModels
 
                         // Notify the client ...
                         //
-                        PushCacheNotificationMessage(String.Format("To-do item with key [{0}] has been cached by member server [{1}].", cachedKey, memberServer));
+                        PushCacheNotificationMessage(String.Format("To-do item with key [{0}] has been cached by member server [{1}].", cachedKey.Replace("\"", ""), memberServer));
 
                         // Write it to the log, if a TextWriterTraceListener, or XmlWriterTraceListener is attached.
                         //
