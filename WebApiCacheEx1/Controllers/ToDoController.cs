@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Cors;
 
 namespace WebApiCacheEx1.Controllers
 {
@@ -16,9 +18,9 @@ namespace WebApiCacheEx1.Controllers
         }
 
         // POST api/<controller>
-        public void Post([FromBody]Models.ToDo toDoItem)
+        public async Task<bool> Post([FromBody]Models.ToDo toDoItem)
         {
-            ViewModels.ToDo.CacheToDoItem(toDoItem);
+            return await ViewModels.ToDo.CacheToDoItem(toDoItem);
         }
 
         // PUT api/<controller>/5

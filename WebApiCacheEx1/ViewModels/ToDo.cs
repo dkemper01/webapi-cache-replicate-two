@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
@@ -21,8 +22,9 @@ namespace WebApiCacheEx1.ViewModels
 
         static ToDo() { }
 
-        public async static void CacheToDoItem(Models.ToDo toDoItem)
+        public async static Task<bool> CacheToDoItem(Models.ToDo toDoItem)
         {
+            bool status = true;
             CacheItemPolicy policy = CacheItemPolicyFactory();
             System.Reflection.MethodBase currentMethod = System.Reflection.MethodInfo.GetCurrentMethod();
             string cacheNotificationMessage = "To-do item has been cached by the server handling the original request.";
@@ -47,39 +49,57 @@ namespace WebApiCacheEx1.ViewModels
                     cacheMemberServerList = cacheMemberServers.Split(',').ToList();
                 }
 
-                using (var client = new HttpClient())
-                {
-                    Models.CachedToDo cachedToDoItem = new Models.CachedToDo { Key = key, ToDoItem = toDoItem };
+                Models.CachedToDo cachedToDoItem = new Models.CachedToDo { Key = key, ToDoItem = toDoItem };
+                IEnumerable<Task<bool>> postAndPushCollection = from member in cacheMemberServerList select PostAndPush(member.Trim(), member.Trim() + "/api/cacheitem", cachedToDoItem);
 
-                    foreach (string member in cacheMemberServerList)
-                    {
-                        var memberServer = member.Trim();
-                        client.DefaultRequestHeaders.Accept.Clear();
+                bool[] postAndPushResults = await Task.WhenAll(postAndPushCollection);
 
-                        var response = await client.PostAsync(memberServer +"/api/cacheitem", cachedToDoItem, new JsonMediaTypeFormatter());
-
-                        if (response.IsSuccessStatusCode)
-                        {
-                            string cachedKey = await response.Content.ReadAsStringAsync();
-
-                            // Notify the client ...
-                            //
-                            PushCacheNotificationMessage(String.Format("To-do item with key [{0}] has been cached by member server [{1}].", cachedKey, memberServer));
-
-                            // Write it to the log, if a TextWriterTraceListener, or XmlWriterTraceListener is attached.
-                            //
-                            System.Diagnostics.Trace.WriteLine(String.Format("{0}.{1}: Response status code is [{2}].", currentMethod.DeclaringType, currentMethod.Name, response.StatusCode));
-                        }
-                    }
-                }
+                status = !(postAndPushResults.Any(p => p == false));
 
             }
             catch (System.Exception generalException)
             {
+                status = false;
+
                 // Write it to the log, if a TextWriterTraceListener, or XmlWriterTraceListener is attached.
                 //
                 System.Diagnostics.Trace.WriteLine(String.Format("{0}.{1}: {2}", currentMethod.DeclaringType, currentMethod.Name, generalException.Message));
             }
+
+            return status;
+        }
+
+        public async static Task<bool> PostAndPush(string memberServer, string memberServerUrl, Models.CachedToDo cachedToDoItem)
+        {
+            bool success = true;
+            System.Reflection.MethodBase currentMethod = System.Reflection.MethodInfo.GetCurrentMethod();
+
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    var response = await client.PostAsync(memberServerUrl, cachedToDoItem, new JsonMediaTypeFormatter());
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string cachedKey = await response.Content.ReadAsStringAsync();
+
+                        // Notify the client ...
+                        //
+                        PushCacheNotificationMessage(String.Format("To-do item with key [{0}] has been cached by member server [{1}].", cachedKey, memberServer));
+
+                        // Write it to the log, if a TextWriterTraceListener, or XmlWriterTraceListener is attached.
+                        //
+                        System.Diagnostics.Trace.WriteLine(String.Format("{0}.{1}: Response status code is [{2}].", currentMethod.DeclaringType, currentMethod.Name, response.StatusCode));
+                    }
+                }
+            }
+            catch
+            {
+                success = false;
+            }
+
+            return success;
         }
 
         public static string CacheDistributedToDoItem(Models.CachedToDo cachedToDoItem)
