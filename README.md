@@ -1,4 +1,4 @@
-<p>This is a working demo of distributed caching using WebAPI, OWIN, SignalR, and the System.Runtime.Caching.MemoryCache, among other technologies.  This is a peer node in a cache replication set.  This application can stand alone, in which case the cache is not distributed, or via an appSetting in web.config, it can be configured to communicate with peer replicates to fully replicated cached items.</p>
+<p>This is a working demo of distributed caching using WebAPI, OWIN, SignalR, and the System.Runtime.Caching.MemoryCache, among other technologies.  This is a peer node in a cache replication set.  This application can stand alone, in which case the cache is not distributed, or via an appSetting in web.config, it can be configured to communicate with peer replicates to fully replicate cached items.</p>
 
 <ul>
 <li>Visual Studio 2012 Update 4</li>
