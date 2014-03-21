@@ -71,7 +71,7 @@ namespace WebApiCacheEx1.ViewModels
 
         public async static Task<bool> PostAndPush(string memberServer, string memberServerUrl, Models.CachedToDo cachedToDoItem)
         {
-            bool success = true;
+            bool success = false;
             System.Reflection.MethodBase currentMethod = System.Reflection.MethodInfo.GetCurrentMethod();
 
             try
@@ -88,15 +88,19 @@ namespace WebApiCacheEx1.ViewModels
                         //
                         PushCacheNotificationMessage(String.Format("To-do item with key [{0}] has been cached by member server [{1}].", cachedKey.Replace("\"", ""), memberServer));
 
-                        // Write it to the log, if a TextWriterTraceListener, or XmlWriterTraceListener is attached.
+                        // Write the response status to the log, if a TextWriterTraceListener, or XmlWriterTraceListener is attached.
                         //
                         System.Diagnostics.Trace.WriteLine(String.Format("{0}.{1}: Response status code is [{2}].", currentMethod.DeclaringType, currentMethod.Name, response.StatusCode));
+
+                        success = true;
                     }
                 }
             }
-            catch
+            catch (System.Exception generalException)
             {
-                success = false;
+                // Write the exception message to the log, if a TextWriterTraceListener, or XmlWriterTraceListener is attached.
+                //
+                System.Diagnostics.Trace.WriteLine(String.Format("{0}.{1}: Response status code is [{2}].", currentMethod.DeclaringType, currentMethod.Name, generalException.Message));
             }
 
             return success;
