@@ -111,6 +111,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\WarmupController.cs" />
     <Compile Include="Models\CachedToDo.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="Controllers\CacheItemController.cs" />
